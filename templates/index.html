@@ -9,82 +9,111 @@
 
 </head>
 <body>
-  <h3 class="text-center">Application ML - Détection Défauts de Paiement</h3>
+  <h3 class="text-center">Application ML - Loan - Satisfaction Analysis </h3>
   <div class="container mt-4">
     <div class="row">
 
       <!-- Formulaire 1 : Random Forest -->
       <div class="col-lg-4 col-md-6 mb-4">
-        <h4 class="text-center">Modèle Random Forest</h4>
+        <h4 class="text-center">Demande Crédit</h4>
         <form method="POST" action="/predict_rf">
-          <div class="mb-3">
-            <label for="limit_bal" class="form-label">Limite de crédit (limit_bal)</label>
-            <input type="number" id="limit_bal" name="limit_bal" class="form-control" required />
-          </div>
 
           <div class="mb-3">
-            <label for="sex" class="form-label">Sexe</label>
-            <select id="sex" name="sex" class="form-select" required>
+            <label for="Gender" class="form-label">Gender</label>
+            <select id="Gender" name="Gender" class="form-select" required>
               <option value="">Sélectionnez</option>
-              <option value="Female">Femme</option>
-              <option value="Male">Homme</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+            </select>
+          </div>
+
+
+          <div class="mb-3">
+            <label for="Married" class="form-label">Statut matrimonial</label>
+            <select id="Married" name="Married" class="form-select" required>
+              <option value="">Sélectionnez</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label for="education" class="form-label">Niveau d'éducation</label>
-            <select id="education" name="education" class="form-select" required>
+            <label for="Dependents" class="form-label">Nombre de personnes à charge</label>
+            <select id="Dependents" name="Dependents" class="form-select" required>
               <option value="">Sélectionnez</option>
-              <option value="Graduate school">Graduate school</option>
-              <option value="University">University</option>
-              <option value="High school">High school</option>
-              <option value="Others">Autres</option>
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3+">3+</option>
+            </select>
+          </div>
+    
+
+          <div class="mb-3">
+            <label for="Education" class="form-label">Niveau d'éducation</label>
+            <select id="Education" name="Education" class="form-select" required>
+              <option value="">Sélectionnez</option>
+              <option value="Graduate">Graduate</option>
+              <option value="Not Graduate">Not Graduate</option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label for="marriage" class="form-label">Statut matrimonial</label>
-            <select id="marriage" name="marriage" class="form-select" required>
+            <label for="Self_Employed" class="form-label">Self Employed</label>
+            <select id="Self_Employed" name="Self_Employed" class="form-select" required>
               <option value="">Sélectionnez</option>
-              <option value="Single">Célibataire</option>
-              <option value="Married">Marié(e)</option>
-              <option value="Others">Autres</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label for="age" class="form-label">Âge</label>
-            <input type="number" id="age" name="age" class="form-control" min="18" max="100" required />
+            <label for="Property_Area" class="form-label">Zone de propriété</label>
+            <select id="Property_Area" name="Property_Area" class="form-select" required>
+              <option value="">Sélectionnez</option>
+              <option value="Urban">Urban</option>
+              <option value="Semiurban">Semiurban</option>
+              <option value="Rural">Rural</option>    
+            </select>
           </div>
 
-          <h5>Statut paiement (septembre à avril)</h5>
-          <div class="row">
-            {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
-              <div class="col-6 mb-3">
-                <label for="payment_status_{{ month }}" class="form-label">Paiement {{ month|capitalize }}</label>
-                <input type="number" id="payment_status_{{ month }}" name="payment_status_{{ month }}" class="form-control" step="1" min="-2" max="8" required />
-              </div>
-            {% endfor %}
+          <div class="mb-3">
+            <label for="ApplicantIncome" class="form-label">Revenu du demandeur</label>
+            <input type="number" id="ApplicantIncome" name="ApplicantIncome" class="form-control" min="0" step="0.01" required />
+          </div>  
+
+          <div class="mb-3">
+            <label for="CoapplicantIncome" class="form-label">Revenu du co-demandeur</label>
+            <input type="number" id="CoapplicantIncome" name="CoapplicantIncome" class="form-control" min="0" step="0.01" required />
           </div>
 
-          <h5>Factures (septembre à avril)</h5>
-          <div class="row">
-            {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
-              <div class="col-6 mb-3">
-                <label for="bill_statement_{{ month }}" class="form-label">Facture {{ month|capitalize }}</label>
-                <input type="number" id="bill_statement_{{ month }}" name="bill_statement_{{ month }}" class="form-control" min="0" step="0.01" required />
-              </div>
-            {% endfor %}
+          <div class="mb-3">
+            <label for="LoanAmount" class="form-label">Montant du prêt</label>
+            <input type="number" id="LoanAmount" name="LoanAmount" class="form-control" min="0" step="0.01" required />
           </div>
 
-          <h5>Paiements précédents (septembre à avril)</h5>
-          <div class="row">
-            {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
-              <div class="col-6 mb-3">
-                <label for="previous_payment_{{ month }}" class="form-label">Paiement précédent {{ month|capitalize }}</label>
-                <input type="number" id="previous_payment_{{ month }}" name="previous_payment_{{ month }}" class="form-control" min="0" step="0.01" required />
-              </div>
-            {% endfor %}
+          <div class="mb-3">
+            <label for="Loan_Amount_Term" class="form-label">Durée du prêt (en mois)</label>
+            <select id="Loan_Amount_Term" name="Loan_Amount_Term" class="form-select" required>
+              <option value="">Sélectionnez</option>
+              <option value="360">360 mois</option>
+              <option value="240">240 mois</option>
+              <option value="180">180 mois</option>
+              <option value="120">120 mois</option>
+              <option value="60">60 mois</option>
+              <option value="36">36 mois</option>
+              <option value="24">24 mois</option>
+              <option value="12">12 mois</option>
+            </select>
+          </div>  
+
+          <div class="mb-3">
+            <label for="Credit_History" class="form-label">Historique de crédit</label>
+            <select id="Credit_History" name="Credit_History" class="form-select" required>
+              <option value="">Sélectionnez</option>  
+              <option value="1">1</option>
+              <option value="0">0</option>
+            </select>
           </div>
 
           <button type="submit" class="btn btn-primary w-100 mt-3">Prédire</button>

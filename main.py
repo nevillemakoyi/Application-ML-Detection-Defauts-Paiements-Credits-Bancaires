@@ -16,8 +16,11 @@ stop_words = set(stopwords.words("french"))
 
 app = Flask(__name__)
 
-# Chargement des modèles (assure-toi que les fichiers existent dans 'models/')
-rf_model = joblib.load("models/credit_default_model_pipeline.pkl")
+# chargement du pipeline de Random Forest
+pipeline_rf = joblib.load("models/rf_credit_model.pkl")
+
+
+
 # Pour le modèle NLP, on charge le pipeline
 nlp_model = joblib.load("models/sentiment_model.pkl")
 
@@ -46,62 +49,37 @@ def index():
 
 @app.route("/predict_rf", methods=["POST"])
 def predict_rf():
-    try:
-        data = request.form
-
-        def to_float(val, field_name):
-            try:
-                return float(val)
-            except Exception:
-                raise ValueError(f"Champ {field_name} doit être un nombre valide.")
-
-        def to_int(val, field_name):
-            try:
-                return int(val)
-            except Exception:
-                raise ValueError(f"Champ {field_name} doit être un entier valide.")
-
-        # NE PAS FAIRE DE MAPPING ICI - laisser les valeurs brutes
-        input_dict = {
-            "limit_bal": to_float(data["limit_bal"], "limit_bal"),
-            "sex": data["sex"],  # ex: 'Male'
-            "education": data["education"],  # ex: 'Graduate school'
-            "marriage": data["marriage"],  # ex: 'Single'
-            "age": to_int(data["age"], "age"),
-        }
-
-        months = ["sep", "aug", "jul", "jun", "may", "apr"]
-        for m in months:
-            input_dict[f"payment_status_{m}"] = to_int(
-                data[f"payment_status_{m}"], f"payment_status_{m}"
-            )
-            input_dict[f"bill_statement_{m}"] = to_float(
-                data[f"bill_statement_{m}"], f"bill_statement_{m}"
-            )
-            input_dict[f"previous_payment_{m}"] = to_float(
-                data[f"previous_payment_{m}"], f"previous_payment_{m}"
-            )
-
-        input_df = pd.DataFrame([input_dict])
-
-        # LAISSE LE PIPELINE FAIRE LA TRANSFORMATION
-        prediction = rf_model.predict(input_df)[0]
-        # Probabilité associée à la classe prédite
-        probability = rf_model.predict_proba(input_df)[0][1]
-
+        # Récupération des données du formulaire index.html
+        input_dict = {  
+                      
+                    'Gender': request.form['Gender'],
+                    'Married': request.form['Married'],
+                    'Dependents': request.form['Dependents'],
+                    'Education': request.form['Education'],
+                    'Self_Employed': request.form['Self_Employed'],
+                    'ApplicantIncome': request.form['ApplicantIncome'],
+                    'CoapplicantIncome': request.form['CoapplicantIncome'],
+                    'LoanAmount': request.form['LoanAmount'],
+                    'Loan_Amount_Term': request.form['Loan_Amount_Term'],
+                    'Credit_History': request.form['Credit_History'],
+                    'Property_Area': request.form['Property_Area']
+                    }
+        # Création d'un DataFrame à partir du dictionnaire
+        
+        features = pd.DataFrame([input_dict])
+       
+       #prediction avec le pipeline
+        pred = pipeline_rf.predict(features)[0]
+        proba = pipeline_rf.predict_proba(features)[0][1]
+       
         # Affichage du message
-        if prediction == 1:
-            result_message = f"⚠️ En défaut de paiement avec une probabilité de {round(probability * 100, 2)} %"
-        else:
-            result_message = f"✅ Pas en défaut de paiement avec une probabilité de {round((1 - probability) * 100, 2)} %"
-
+        if pred == 1:
+            result_message = f" Eligible avec une probabilité de {round(proba * 100, 2)} %"
+        else:   
+            result_message = f" Pas Eligible avec une probabilité de {round((1 - proba) * 100, 2)} %"
+        # Affichage du résultat dans index.html
         return render_template("index.html", rf_prediction=result_message)
-
-    except Exception as e:
-        return render_template(
-            "index.html", rf_prediction=f"Erreur lors de la prédiction RF : {str(e)}"
-        )
-
+        
 
 @app.route("/predict_nlp", methods=["POST"])
 def predict_nlp():
