@@ -5,7 +5,6 @@ import pandas as pd
 import re
 import string
 import unicodedata
-
 import nltk
 
 nltk.download("stopwords")
@@ -18,8 +17,6 @@ app = Flask(__name__)
 
 # chargement du pipeline de Random Forest
 pipeline_rf = joblib.load("models/rf_credit_model.pkl")
-
-
 
 # Pour le modèle NLP, on charge le pipeline
 nlp_model = joblib.load("models/sentiment_model.pkl")
@@ -49,37 +46,36 @@ def index():
 
 @app.route("/predict_rf", methods=["POST"])
 def predict_rf():
-        # Récupération des données du formulaire index.html
-        input_dict = {  
-                      
-                    'Gender': request.form['Gender'],
-                    'Married': request.form['Married'],
-                    'Dependents': request.form['Dependents'],
-                    'Education': request.form['Education'],
-                    'Self_Employed': request.form['Self_Employed'],
-                    'ApplicantIncome': request.form['ApplicantIncome'],
-                    'CoapplicantIncome': request.form['CoapplicantIncome'],
-                    'LoanAmount': request.form['LoanAmount'],
-                    'Loan_Amount_Term': request.form['Loan_Amount_Term'],
-                    'Credit_History': request.form['Credit_History'],
-                    'Property_Area': request.form['Property_Area']
-                    }
-        # Création d'un DataFrame à partir du dictionnaire
-        
-        features = pd.DataFrame([input_dict])
-       
-       #prediction avec le pipeline
-        pred = pipeline_rf.predict(features)[0]
-        proba = pipeline_rf.predict_proba(features)[0][1]
-       
-        # Affichage du message
-        if pred == 1:
-            result_message = f" Eligible avec une probabilité de {round(proba * 100, 2)} %"
-        else:   
-            result_message = f" Pas Eligible avec une probabilité de {round((1 - proba) * 100, 2)} %"
-        # Affichage du résultat dans index.html
-        return render_template("index.html", rf_prediction=result_message)
-        
+    # Récupération des données du formulaire index.html
+    input_dict = {
+        "Gender": request.form["Gender"],
+        "Married": request.form["Married"],
+        "Dependents": request.form["Dependents"],
+        "Education": request.form["Education"],
+        "Self_Employed": request.form["Self_Employed"],
+        "ApplicantIncome": request.form["ApplicantIncome"],
+        "CoapplicantIncome": request.form["CoapplicantIncome"],
+        "LoanAmount": request.form["LoanAmount"],
+        "Loan_Amount_Term": request.form["Loan_Amount_Term"],
+        "Credit_History": request.form["Credit_History"],
+        "Property_Area": request.form["Property_Area"],
+    }
+    # Création d'un DataFrame à partir du dictionnaire
+
+    features = pd.DataFrame([input_dict])
+
+    # prediction avec le pipeline
+    pred = pipeline_rf.predict(features)[0]
+    proba = pipeline_rf.predict_proba(features)[0][1]
+
+    # Affichage du message
+    if pred == 1:
+        result_message = " Eligible"
+    else:
+        result_message = "Pas Eligible"
+    # Affichage du résultat dans index.html
+    return render_template("index.html", rf_prediction=result_message)
+
 
 @app.route("/predict_nlp", methods=["POST"])
 def predict_nlp():
